@@ -5,4 +5,4 @@ mainCaffe.lua ->
 It has the main structure of the CNN
 
 process.lua ->
-It has all the fucntions implemented
+<b>It has all the fucntions implemented</b>
