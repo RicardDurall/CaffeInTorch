@@ -97,7 +97,6 @@ testLogger = optim.Logger(paths.concat(opt.save, 'testCaffe.log'))
 ----------------------------------------------------------------------
 -- program
 --
-print(model.modules[17].weight[33][2])
 while true do
 	
 	print("---------------------------------------------------------------")
@@ -110,10 +109,6 @@ while true do
 
 	print("---------------------------------------------------------------")
 	print("---------------------------------------------------------------")
-
-
-	--print(model.modules[1].weight[33][2][1][7])
-	print(model.modules[17].weight[33][2])
 
 end
 
