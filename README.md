@@ -1,5 +1,5 @@
-# CaffeOnTorch
-<p>CNN implemented on Torch7 using pre-trained model from Caffe.</p>
+# CaffeInTorch
+<p>CNN implemented in Torch7 using pre-trained model from Caffe.</p>
 
 <p><i>mainCaffe.lua</i> <q>  It has the main structure of the CNN</q>.</p>
 
