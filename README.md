@@ -3,7 +3,7 @@
 
 <p><i>mainCaffe.lua</i> <q>  It has the main structure of the CNN</q>.</p>
 
-<p><i>process.lua</i> <q>  It has all the functions implemented</q>.</p>
+<i>process.lua</i> <q>  It has all the functions implemented</q>.
 
 <p>How to run the program the first time:</p>
 
