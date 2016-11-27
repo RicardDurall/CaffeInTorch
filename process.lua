@@ -8,7 +8,6 @@ require 'xlua'
 require 'cudnn'
 require 'cutorch'
 require 'cunn'
-require 'gnuplot'
 
 local M={}
 

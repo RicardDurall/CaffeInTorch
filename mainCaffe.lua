@@ -8,7 +8,6 @@ require 'xlua'
 require 'cudnn'
 require 'cutorch'
 require 'cunn'
-require 'gnuplot'
 
 local process = require 'process'
 
@@ -23,9 +22,7 @@ cmd:text()
 cmd:text('Options:')
 cmd:option('-save', fname:gsub('.lua',''), 'subdirectory to save/log experiments in')
 cmd:option('-network', '', 'reload pretrained network')
-cmd:option('-visualize', false, 'visualize input data and weights during training')
 cmd:option('-seed', 1, 'fixed input seed for repeatable experiments')
-cmd:option('-plot', false, 'live plot')
 cmd:option('-optimization', 'SGD', 'optimization method: SGD | ASGD | CG | LBFGS')
 cmd:option('-learningRate', 1e-2, 'learning rate at t=0')
 cmd:option('-batchSize', 128, 'mini-batch size (1 = pure stochastic)')
