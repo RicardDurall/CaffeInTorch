@@ -1,12 +1,10 @@
 # CaffeInTorch
 <p>CNN implemented in Torch7 using pre-trained model from Caffe.</p>
 
-<p><i>mainCaffe.lua</i> <q>  It has the main structure of the CNN</q>.</p>
-
+<i>mainCaffe.lua</i> <q>  It has the main structure of the CNN</q>.
 <i>process.lua</i> <q>  It has all the functions implemented</q>.
 
 <p>How to run the program the first time:</p>
-
 th mainCaffe.lua -initializeAll (all layers will freeze their weights but the last ones which would be initialized)
 
 <p>If we have already run the program and we have houseCaffe.t7:</p>
