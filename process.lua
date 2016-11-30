@@ -45,18 +45,18 @@ function initialization()
 	--initialize weight (fc6 is layer 18)
 	for i,m in pairs(model:listModules()) do
 
-		if i > 17 and (opt.initializeAll) then
-			print('initialized last layers')
+		if i > 16 and (opt.initializeAll) then
+			print('initialized layer: ' .. i)
 			m:reset() --random initialization of weights and bias
 
-			if (opt.saveWeight) and (i==18 or i==21 or i==24 or i==25) then
+			if (opt.saveWeight) and (i==17 or i==20 or i==23 or i==24) then
 				print("new weights saved on t7 file")
 			
 				--converstion to double to work without cuda library later on
 				weightsDouble = model.modules[i].weight			
-				nn.utils.recursiveType(weightsDouble, 'torch.DoubleTensor')
+				weightsDouble = nn.utils.recursiveType(weightsDouble, 'torch.DoubleTensor')
 
-				local filename = paths.concat(opt.save, i .. ".t7")
+				local filename = paths.concat(opt.save, i .. "weight.t7")
 				torch.save(filename, weightsDouble)
 				collectgarbage()
 
@@ -122,16 +122,15 @@ end
 -------------------------------------------------------------------------
 function preprocess()
 
-	print('data augmenatation and preprocessing data (color space + normalization)')   
+	print('preprocessing data (color space + normalization)')   
 
 	-- preprocess requires floating point
 	trainData.data = trainData.data:float()
-	--trainData.data = trainData.data:resize(trainData.data:size(),3,227,227)
-	print(trainData.size())
 	testData.data = testData.data:float()
 
 	-- data augmentation
-	if opt.augmentation then	
+	if opt.augmentation then
+		print('data augmenatation')	
 		dataAugmentation()
 	end
 
@@ -183,70 +182,69 @@ end
 function dataAugmentation()
 
 	--define how many of extra images (with augmentation) will have
-	local numCrop = math.ceil(0.001*trainData.size())
-	local numRotate = math.ceil(0.001*trainData.size())
-	local numTrans = math.ceil(0.0001*trainData.size())
-	local numFlip = math.ceil(0.0001*trainData.size())
+	local numCrop = math.ceil(0.1*trainData.size())
+	local numRotate = math.ceil(0.3*trainData.size())
+	local numTrans = math.ceil(0.01*trainData.size())
+	local numFlip = math.ceil(0.01*trainData.size())
 
 
 	newData = trainData.data:clone()
+	local sizeImg1 = trainData.data:size(3)
+	local sizeImg2 = trainData.data:size(4)
+	local sizeImg1Crop = math.ceil(sizeImg1/2)
+	local sizeImg2Crop = math.ceil(sizeImg2/2)
 
+	print("numCrop: ".. numCrop)
 	--three different crops are applied
 	for i=1, numCrop  do
+		newData = image.crop(trainData.data[i], "c", sizeImg1Crop, sizeImg2Crop)		
+		newData = newData:resize(1,3,sizeImg1,sizeImg2)
+		trainData.data = torch.cat(trainData.data,newData,1)
+		newLabel = torch.Tensor(1):fill(trainData.labels[i])
+		trainData.labels = torch.cat(trainData.labels,newLabel,1)
 
-		newData = image.crop(trainData.data[i], "c", 20, 20)		
-		newData = newData:resize(1,3,32,32)
+		newData = image.crop(trainData.data[i], "tl", sizeImg1Crop, sizeImg2Crop)		
+		newData = newData:resize(1,3,sizeImg1,sizeImg2)
 		trainData.data = torch.cat(trainData.data,newData,1)
 		newLabel = torch.Tensor(1):fill(trainData.labels[i])
 		trainData.labels = torch.cat(trainData.labels,newLabel,1)
-		newData = image.crop(trainData.data[i], "tl", 20, 20)		
-		newData = newData:resize(1,3,32,32)
-		trainData.data = torch.cat(trainData.data,newData,1)
-		newLabel = torch.Tensor(1):fill(trainData.labels[i])
-		trainData.labels = torch.cat(trainData.labels,newLabel,1)
-		newData = image.crop(trainData.data[i], "br", 20, 20)		
-		newData = newData:resize(1,3,32,32)
+
+		newData = image.crop(trainData.data[i], "br", sizeImg1Crop, sizeImg2Crop)		
+		newData = newData:resize(1,3,sizeImg1,sizeImg2)
 		trainData.data = torch.cat(trainData.data,newData,1)
 		newLabel = torch.Tensor(1):fill(trainData.labels[i])
 		trainData.labels = torch.cat(trainData.labels,newLabel,1)
 	end
-	print(numRotate)
+	print("numRotate: ".. numRotate)
 	--rotates image src by theta radians.
 	for i=1, numRotate  do
 		newData = image.rotate(trainData.data[i],2)
-		newData = newData:resize(1,3,32,32)
+		newData = newData:resize(1,3,sizeImg1,sizeImg2)
 		trainData.data = torch.cat(trainData.data,newData,1)
 		newLabel = torch.Tensor(1):fill(trainData.labels[i])
 		trainData.labels = torch.cat(trainData.labels,newLabel,1)
 	end
-	print(numTrans)
+	print("numTrans: ".. numTrans)
 	--translates image src by x pixels horizontally and y pixels vertically.
 	for i=1, numTrans  do
 		newData = image.translate(trainData.data[i],5,5)
-		newData = newData:resize(1,3,32,32)
+		newData = newData:resize(1,3,sizeImg1,sizeImg2)
 		trainData.data = torch.cat(trainData.data,newData,1)
 		newLabel = torch.Tensor(1):fill(trainData.labels[i])
 		trainData.labels = torch.cat(trainData.labels,newLabel,1)
 	end
---[[
-	print(numFlip)
+	print("numFlip:".. numFlip)
 	--flips image src vertically (upsize<->down).
 	for i=1, numFlip  do
-	print(i)
-		newData = image.vflipl(trainData.data[i])
-	print(i)
-		newData = newData:resize(1,3,32,32)
-	print(i)
+
+		newData = image.vflip(trainData.data[i])
+		newData = newData:resize(1,3,sizeImg1,sizeImg2)
 		trainData.data = torch.cat(trainData.data,newData,1)
-	print(i)
 		newLabel = torch.Tensor(1):fill(trainData.labels[i])
 		trainData.labels = torch.cat(trainData.labels,newLabel,1)
-	end]]
+	end
 
-print(trainData:size())
-
-
-return trainData
+	return trainData
 
 end
 -------------------------------------------------------------------------
@@ -254,186 +252,295 @@ end
 --TRAINING---------------------------------------------------------------
 -------------------------------------------------------------------------
 -------------------------------------------------------------------------
-function train()
-   -- epoch tracker
-   epoch = epoch or 1
+function train(dataset)
+	-- epoch tracker
+	epoch = epoch or 1
 
-   -- local vars
-   local time = sys.clock()
+	-- local vars
+	local time = sys.clock()
 
-   -- shuffle at each epoch
-   shuffle = torch.randperm(trsize)
+	-- shuffle at each epoch
+	shuffle = torch.randperm(trsize)
 
-   -- do one epoch
-   print('training set:')
-   print("online epoch # " .. epoch .. ' [batchSize = ' .. opt.batchSize .. ']')
-   for t = 1,dataset:size(),opt.batchSize do
-      -- disp progress
-      xlua.progress(t, dataset:size())
-      -- create mini batch
-      local inputs = {}
-      local targets = {}
-      local inputsResize = {}
+	-- do one epoch
+	print('training set:')
+	print("online epoch # " .. epoch .. ' [batchSize = ' .. opt.batchSize .. ']')
+	for t = 1,dataset:size(),opt.batchSize do
+		 -- disp progress
+		 xlua.progress(t, dataset:size())
+		-- create mini batch
+		local inputs = {}
+		local targets = {}
+		local inputsResize = {}
 
-      for i = t,math.min(t+opt.batchSize-1,dataset:size()) do
-         -- load new sample
-         input = dataset.data[shuffle[i]]:double()
-         local target = dataset.labels[shuffle[i]]
-         table.insert(inputs, input)
-         table.insert(targets, target)
+		for i = t,math.min(t+opt.batchSize-1,dataset:size()) do
+			-- load new sample
+			input = dataset.data[shuffle[i]]:double()
+			local target = dataset.labels[shuffle[i]]
+			table.insert(inputs, input)
+			table.insert(targets, target)
 	
-      end
+		end
 
-      if input:size(2) ~= 227 then
+		inputResize = torch.Tensor(3,227,227):zero()
+		for i=1, #inputs do	
 
-		 inputResize = torch.Tensor(3,227,227):zero()
-		 --print("num",inputs)
-		 for i=1, #inputs do	
+			inputResize = image.scale(inputs[i],227,227)
+			inputResize = inputResize:cuda()
+			table.insert(inputsResize, inputResize)
 
-		     inputResize = image.scale(inputs[i],227,227)
-		     inputResize = inputResize:cuda()
-         	     table.insert(inputsResize, inputResize)
+		end
 
-		 end
-      end
+		-- create closure to evaluate f(X) and df/dX
+		local feval = function(x)
+			-- get new parameters
+			if x ~= parameters then
+				parameters:copy(x)
+			end
 
-      -- create closure to evaluate f(X) and df/dX
-      local feval = function(x)
-                       -- get new parameters
-                       if x ~= parameters then
-                          parameters:copy(x)
-                       end
-
-                       -- reset gradients
-                       gradParameters:zero()
-                       -- f is the average of all criterions
-                       local f = 0
-                       -- evaluate function for complete mini batch
-                       for i = 1,#inputsResize do
-                          -- estimate f	
-                          local output = model:forward(inputsResize[i])
-                          local err = criterion:forward(output, targets[i])
-                          f = f + err
+			 -- reset gradients
+			gradParameters:zero()
+			-- f is the average of all criterions
+			local f = 0
+			-- evaluate function for complete mini batch
+			for i = 1,#inputsResize do
+				-- estimate f	
+				local output = model:forward(inputsResize[i])
+				local err = criterion:forward(output, targets[i])
+				f = f + err
 			
-                          -- estimate df/dW
-                          local df_do = criterion:backward(output, targets[i])
-                          model:backward(inputsResize[i], df_do)
-			  output = output:double()
+				-- estimate df/dW
+				local df_do = criterion:backward(output, targets[i])
+				model:backward(inputsResize[i], df_do)
+				output = output:double()
 
-                          -- update confusion
-                          confusion:add(output, targets[i])
-                       end
-                       -- normalize gradients and f(X)
-                       gradParameters:div(#inputsResize)
-                       f = f/#inputsResize
+				-- update confusion
+				confusion:add(output, targets[i])
+			end
+			-- normalize gradients and f(X)
+			gradParameters:div(#inputsResize)
+			f = f/#inputsResize
 
-                       -- return f and df/dX
-                       return f,gradParameters
-                    end
+			-- return f and df/dX
+			return f,gradParameters
+		end
 
-      -- optimize on current mini-batch
-      if opt.optimization == 'CG' then
-         config = config or {maxIter = opt.maxIter}
-         optim.cg(feval, parameters, config)
+		-- optimize on current mini-batch
+		if opt.optimization == 'CG' then
+			config = config or {maxIter = opt.maxIter}
+			optim.cg(feval, parameters, config)
 
-      elseif opt.optimization == 'LBFGS' then
-         config = config or {learningRate = opt.learningRate,
-                             maxIter = opt.maxIter,
-                             nCorrection = 10}
-         optim.lbfgs(feval, parameters, config)
+		elseif opt.optimization == 'LBFGS' then
+			config = config or {learningRate = opt.learningRate, maxIter = opt.maxIter, nCorrection = 10}
+			optim.lbfgs(feval, parameters, config)
 
-      elseif opt.optimization == 'SGD' then
-         config = config or {learningRate = opt.learningRate,
-                             weightDecay = opt.weightDecay,
-                             momentum = opt.momentum,
-                             learningRateDecay = 5e-7}
-         optim.sgd(feval, parameters, config)
+		elseif opt.optimization == 'SGD' then
+			config = config or {learningRate = opt.learningRate, weightDecay = opt.weightDecay, momentum = opt.momentum, learningRateDecay = 5e-7}
+			optim.sgd(feval, parameters, config)
 
-      elseif opt.optimization == 'ASGD' then
-         config = config or {eta0 = opt.learningRate,
-                             t0 = trsize * opt.t0}
-         _,_,average = optim.asgd(feval, parameters, config)
+		elseif opt.optimization == 'ASGD' then
+			config = config or {eta0 = opt.learningRate, t0 = trsize * opt.t0}
+			_,_,average = optim.asgd(feval, parameters, config)
 
-      else
-         error('unknown optimization method')
-      end
-   end
+		else
+			error('unknown optimization method')
+		end
+	end
 
-   -- time taken
-   time = sys.clock() - time
-   time = time / dataset:size()
-   print("time to learn 1 sample = " .. (time*1000) .. 'ms')
+	-- time taken
+	time = sys.clock() - time
+	time = time / dataset:size()
+	print("time to learn 1 sample = " .. (time*1000) .. 'ms')
 
-   -- print confusion matrix
-   print(confusion)
-   trainLogger:add{['% mean class accuracy (train set)'] = confusion.totalValid * 100}
-   confusion:zero()
+	-- print confusion matrix
+	print(confusion)
+	trainLogger:add{['% mean class accuracy (train set)'] = confusion.totalValid * 100}
+	confusion:zero()
 
-   -- save/log current net
-   local filename = paths.concat(opt.save, 'houseCaffe.t7')
-   os.execute('mkdir -p ' .. sys.dirname(filename))
-   print('saving network to '..filename)
-   torch.save(filename, model)
+	-- save/log current net
+	local filename = paths.concat(opt.save, 'houseCaffe.t7')
+	os.execute('mkdir -p ' .. sys.dirname(filename))
+	print('saving network to '..filename)
+	torch.save(filename, model)
 
-   -- next epoch
-   epoch = epoch + 1
+	-- next epoch
+	epoch = epoch + 1
 end
 -------------------------------------------------------------------------
 -------------------------------------------------------------------------
 --TESTING----------------------------------------------------------------
 -------------------------------------------------------------------------
 -------------------------------------------------------------------------
-function test()
-   -- local vars
-   local time = sys.clock()
+function test(dataset)
 
-   -- averaged param use?
-   if average then
-      cachedparams = parameters:clone()
-      parameters:copy(average)
-   end
+	-- local vars
+	local time = sys.clock()
 
-   -- test over given dataset
-   print('on testing Set:')
-   for t = 1,dataset:size() do
-      -- disp progress
-      xlua.progress(t, dataset:size())
+	--used in activations function
+	activation1 = {}
+	activation2 = {}
+	activation3 = {}
+	activation4 = {}
+	fisrtTime = true
 
-      -- get new sample
-      local input = dataset.data[t]:double()
-      local target = dataset.labels[t]
-      local inputsResize = {}
+	-- averaged param use?
+	if average then
+		cachedparams = parameters:clone()
+		parameters:copy(average)
+	end
 
-      if input:size(2) ~= 227 then
+	-- test over given dataset
+	print('on testing Set:')
+	for t = 1,dataset:size() do
+		-- disp progress
+		xlua.progress(t, dataset:size())
 
-		 inputResize = torch.Tensor(3,227,227):zero()
-		 inputResize = image.scale(input,227,227)
-		 inputResize = inputResize:cuda()
+		-- get new sample
+		local input = dataset.data[t]:double()
+		local target = dataset.labels[t]
+		local inputsResize = {}
 
-      end
+		inputResize = torch.Tensor(3,227,227):zero()
+		inputResize = image.scale(input,227,227)
+		inputResize = inputResize:cuda()
 
-      -- test sample
-      local pred = model:forward(inputResize)
-      confusion:add(pred, target)
-   end
+		-- test sample
+		local pred = model:forward(inputResize)
+		activations(target,t)
+		confusion:add(pred, target)
+		
+	end
+	-- timing
+	time = sys.clock() - time
+	time = time / dataset:size()
+	print("time to test 1 sample = " .. (time*1000) .. 'ms')
 
-   -- timing
-   time = sys.clock() - time
-   time = time / dataset:size()
-   print("time to test 1 sample = " .. (time*1000) .. 'ms')
+	-- print confusion matrix
+	print(confusion)
+	testLogger:add{['% mean class accuracy (test set)'] = confusion.totalValid * 100}
+	confusion:zero()
 
-   -- print confusion matrix
-   print(confusion)
-   testLogger:add{['% mean class accuracy (test set)'] = confusion.totalValid * 100}
-   confusion:zero()
+	-- averaged param use?
+	if average then
+		-- restore parameters
+		parameters:copy(cachedparams)
+	end
 
-   -- averaged param use?
-   if average then
-      -- restore parameters
-      parameters:copy(cachedparams)
-   end
+end
+-------------------------------------------------------------------------
+-------------------------------------------------------------------------
+--ACTIVTIONS VALUES ARE SAVED IN A FILE----------------------------------
+-------------------------------------------------------------------------
+-------------------------------------------------------------------------
+function activations(labelTarget,t)
+
+	--num stnads for the amount of pictures
+	num=1000
+
+	if t<=num then
+		--loop for save the 4 activation layers
+		for i=1, 4 do
+			--activations from layer 9 (conv3)--activations from layer 9 (conv3)
+			if i==1 then
+				lay = 9
+			--activations from layer 13 (conv5)
+			elseif i==2 then
+				lay = 13
+			--activations from layer 17 (fc6)
+			elseif i==3 then
+				lay = 17
+			--activations from layer 20 (fc7)
+			else
+				lay = 20
+			end
+
+			newActivation = {}
+		
+			newActivation = model:get(lay).output
+			newActivation = newActivation:view(newActivation:nElement())
+			newActivation = nn.utils.recursiveType(newActivation, 'torch.DoubleTensor')
+			newActivation = newActivation:resize(1,newActivation:size(1))
+
+			--print(newActivation:size())
+
+			if fisrtTime then
+				
+				--print(newActivation:size())
+
+				--activations from layer 9 (conv3)--activations from layer 9 (conv3)
+				if i==1 then
+					activation1.data = newActivation:clone()
+					activation1.labels = torch.Tensor(1):fill(labelTarget)
+				--activations from layer 13 (conv5)
+				elseif i==2 then
+					activation2.data = newActivation:clone()
+					activation2.labels = torch.Tensor(1):fill(labelTarget)
+				--activations from layer 17 (fc6)
+				elseif i==3 then
+					activation3.data = newActivation:clone()
+					activation3.labels = torch.Tensor(1):fill(labelTarget)
+				--activations from layer 20 (fc7)
+				else
+					activation4.data = newActivation:clone()
+					activation4.labels = torch.Tensor(1):fill(labelTarget)
+					fisrtTime = false
+				end
+
+				
+			else
+
+				--print(newActivation:size())
+
+				--activations from layer 9 (conv3)--activations from layer 9 (conv3)
+				if i==1 then
+					activation1.data = torch.cat(activation1.data,newActivation,1)
+					activation1.labels = torch.cat(activation1.labels,torch.Tensor(1):fill(labelTarget),1)
+				--activations from layer 13 (conv5)
+				elseif i==2 then
+					activation2.data = torch.cat(activation2.data,newActivation,1)
+					activation2.labels = torch.cat(activation2.labels,torch.Tensor(1):fill(labelTarget),1)
+				--activations from layer 17 (fc6)
+				elseif i==3 then
+					activation3.data = torch.cat(activation3.data,newActivation,1)
+					activation3.labels = torch.cat(activation3.labels,torch.Tensor(1):fill(labelTarget),1)
+				--activations from layer 20 (fc7)
+				else
+					activation4.data = torch.cat(activation4.data,newActivation,1)
+					activation4.labels = torch.cat(activation4.labels,torch.Tensor(1):fill(labelTarget),1)
+				end
+
+				--print(torch.Tensor(1):fill(labelTarget))
+
+			end
+			
+			local filename = paths.concat(opt.save, i ..'activation.t7')
+			
+			--activations from layer 9 (conv3)--activations from layer 9 (conv3)
+			if i==1 then
+				torch.save(filename, activation1, 'ascii')
+			--activations from layer 13 (conv5)
+			elseif i==2 then
+				torch.save(filename, activation2, 'ascii')
+			--activations from layer 17 (fc6)
+			elseif i==3 then
+				torch.save(filename, activation3, 'ascii')
+			--activations from layer 20 (fc7)
+			else
+				torch.save(filename, activation4, 'ascii')
+			end
+
+		end
+
+	end
+
+	--print(activation1)
+	--print(activation2)
+	--print(activation3)
+	--print(activation4)
+
 end
 
+M.activations = activations
 M.dataAugmentation = dataAugmentation
 M.loadnetwork = loadnetwork
 M.initialization = initialization

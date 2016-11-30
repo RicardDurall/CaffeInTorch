@@ -33,7 +33,7 @@ cmd:option('-maxIter', 2, 'maximum nb of iterations for CG and LBFGS')
 cmd:option('-threads', 2, 'nb of threads to use')
 cmd:option('-initializeAll', false, 'initialize last layers too')
 cmd:option('-saveWeight', false, 'save the initialized weights')
-cmd:option('-augmentation', true, 'load augmentation data')
+cmd:option('-augmentation', false, 'load augmentation data')
 
 cmd:text()
 opt = cmd:parse(arg)
@@ -62,7 +62,7 @@ classes = {'1','2','3','4','5','6','7','8','9','0'}
 --initialization of the weights or/and froze them
 --
 model = initialization(model,opt.initializeAll,opt.saveWeight,opt.save)
---print(model:listModules())
+print(model:listModules())
 
 ----------------------------------------------------------------------
 -- retrieve parameters (weights) and gradients
@@ -100,12 +100,16 @@ while true do
 	print("---------------------------------------------------------------")
 
 	-- training function
-	process.train()
+	--process.train(trainData)
 	-- test function
-	process.test()
+	process.test(testData)
 
 	print("---------------------------------------------------------------")
 	print("---------------------------------------------------------------")
+
+
+	--print(model.modules[1].weight[33][2][1][7])
+	--print(model.modules[17].weight[33][2])
 
 end
 
