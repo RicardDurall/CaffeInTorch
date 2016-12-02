@@ -31,8 +31,6 @@ function loadnetwork()
 	   model = torch.load(opt.network)
 	end
 
-	return model
-
 end
 -------------------------------------------------------------------------
 -------------------------------------------------------------------------
@@ -55,7 +53,6 @@ function initialization()
 				--converstion to double to work without cuda library later on
 				weightsDouble = model.modules[i].weight			
 				weightsDouble = nn.utils.recursiveType(weightsDouble, 'torch.DoubleTensor')
-
 				local filename = paths.concat(opt.save, i .. "weight.t7")
 				torch.save(filename, weightsDouble)
 				collectgarbage()
@@ -68,9 +65,6 @@ function initialization()
 			m.accGradParameters = function(self,i,o) end -- for freezing the parameters	
 		end
 	end
-
-	return model
-
 end
 -------------------------------------------------------------------------
 -------------------------------------------------------------------------
@@ -80,14 +74,26 @@ end
 function loadData()
 
 	print('loading data to Torch')
+	numberHousing()
+	oxford()
+
+end
+-------------------------------------------------------------------------
+-------------------------------------------------------------------------
+--LOAD THE DATA FROM HOUSENUMBER--------------------------------------------
+-------------------------------------------------------------------------
+-------------------------------------------------------------------------
+function numberHousing()
+
+	print('loading House number')
 
 
 	trsize = 73257
 	tesize = 26032
 
 	www = 'http://torch7.s3-website-us-east-1.amazonaws.com/data/housenumbers/'
-	train_file = 'train_32x32.t7'
-	test_file = 'test_32x32.t7'
+	train_file = 'dataset/train_32x32.t7'
+	test_file = 'dataset/test_32x32.t7'
 
 	if not paths.filep(train_file) then
 	   os.execute('wget ' .. www .. train_file)
@@ -111,8 +117,42 @@ function loadData()
 	   size = function() return tesize end
 	}
 
+end
+-------------------------------------------------------------------------
+-------------------------------------------------------------------------
+--LOAD THE DATA FROM OXFORD--------------------------------------------
+-------------------------------------------------------------------------
+-------------------------------------------------------------------------
+function oxford()
 
-	return trainData,testData
+	print('loading Oxford')
+
+	totalsize = 5063
+	trsize = 4500
+	tesize = 563
+
+	tfile = 'dataset/OxfordData.t7'
+	loaded = torch.load(tfile,'ascii')
+
+	print(loaded)
+	--shuffle dataset
+	dataSize = loaded.data:size()[1]
+	shuffleIdx = torch.randperm(dataSize)
+	loaded.data = loaded.data:index(1,shuffleIdx:long())
+	loaded.labels = loaded.labels:index(1,shuffleIdx:long())
+
+	trainData = {
+	   data = loaded.data[{{1,trsize}}])
+	   labels = loaded.data[{{1,trsize}}]),
+	   size = function() return trsize end
+	}
+	testData = {
+	   data = loaded.data[{{trsize+1,totalsize}}])
+	   labels = loaded.data[{{trsize+1,totalsize}}]),
+	   size = function() return tesize end
+	}
+	print(trainData)
+	print(testData)
 
 end
 -------------------------------------------------------------------------
@@ -170,8 +210,6 @@ function preprocess()
 	-- normalize v globally:
 	testData.data[{ {},3,{},{} }]:add(-mean_v)
 	testData.data[{ {},3,{},{} }]:div(-std_v)
-
-	return trainData,testData
 
 end
 -------------------------------------------------------------------------
@@ -243,8 +281,6 @@ function dataAugmentation()
 		newLabel = torch.Tensor(1):fill(trainData.labels[i])
 		trainData.labels = torch.cat(trainData.labels,newLabel,1)
 	end
-
-	return trainData
 
 end
 -------------------------------------------------------------------------
@@ -391,7 +427,7 @@ function test(dataset)
 
 	-- test over given dataset
 	print('on testing Set:')
-	for t = 1,dataset:size() do
+	for t = 1, dataset:size() do
 		-- disp progress
 		xlua.progress(t, dataset:size())
 
@@ -406,7 +442,7 @@ function test(dataset)
 
 		-- test sample
 		local pred = model:forward(inputResize)
-		activations(target,t)
+		--activations(target,t)
 		confusion:add(pred, target)
 		
 	end
@@ -417,6 +453,7 @@ function test(dataset)
 
 	-- print confusion matrix
 	print(confusion)
+	precRecall()
 	testLogger:add{['% mean class accuracy (test set)'] = confusion.totalValid * 100}
 	confusion:zero()
 
@@ -426,6 +463,26 @@ function test(dataset)
 		parameters:copy(cachedparams)
 	end
 
+end
+-------------------------------------------------------------------------
+-------------------------------------------------------------------------
+--CALCULATE PRECIONS AND RECALL------------------------------------------
+-------------------------------------------------------------------------
+-------------------------------------------------------------------------
+function precRecall()
+	local tp, fn, fp
+	tp  = torch.diag(confusion.mat):resize(1,confusion.nclasses )
+	fn = (torch.sum(confusion.mat,2)-torch.diag(confusion.mat)):t()
+	fp = torch.sum(confusion.mat,1)-torch.diag(confusion.mat)
+	tp = tp:float()
+	fn = fn:float()
+	fp = fp:float()
+	prec = torch.cdiv(tp,tp+fp)
+	recall = torch.cdiv(tp,tp+fn)
+	print("precicion:")	
+	print(prec)
+	print("recall:")
+	print(recall)
 end
 -------------------------------------------------------------------------
 -------------------------------------------------------------------------
@@ -512,23 +569,24 @@ function activations(labelTarget,t)
 				--print(torch.Tensor(1):fill(labelTarget))
 
 			end
+		
+			if t == num then 
+				local filename = paths.concat(opt.save, i ..'activation.t7')
 			
-			local filename = paths.concat(opt.save, i ..'activation.t7')
-			
-			--activations from layer 9 (conv3)--activations from layer 9 (conv3)
-			if i==1 then
-				torch.save(filename, activation1, 'ascii')
-			--activations from layer 13 (conv5)
-			elseif i==2 then
-				torch.save(filename, activation2, 'ascii')
-			--activations from layer 17 (fc6)
-			elseif i==3 then
-				torch.save(filename, activation3, 'ascii')
-			--activations from layer 20 (fc7)
-			else
-				torch.save(filename, activation4, 'ascii')
+				--activations from layer 9 (conv3)--activations from layer 9 (conv3)
+				if i==1 then
+					torch.save(filename, activation1, 'ascii')
+				--activations from layer 13 (conv5)
+				elseif i==2 then
+					torch.save(filename, activation2, 'ascii')
+				--activations from layer 17 (fc6)
+				elseif i==3 then
+					torch.save(filename, activation3, 'ascii')
+				--activations from layer 20 (fc7)
+				else
+					torch.save(filename, activation4, 'ascii')
+				end
 			end
-
 		end
 
 	end
@@ -540,14 +598,16 @@ function activations(labelTarget,t)
 
 end
 
-M.activations = activations
-M.dataAugmentation = dataAugmentation
 M.loadnetwork = loadnetwork
 M.initialization = initialization
-M.preprocess = preprocess
 M.loadData = loadData
+M.numberHousing = numberHousing
+M.oxford = oxofrd
+M.dataAugmentation = dataAugmentation
+M.preprocess = preprocess
 M.train = train
 M.test = test
+M.activations = activations
+M.precRecall = precRecall
 
 return M
-
