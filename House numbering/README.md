@@ -1,7 +1,7 @@
 #House numbering
 <p>This folder contains the files to run CNN using House numbering dataset.</p>
 
- <p>&#9658; mainCaffe.lua (It has the main structure of the CNN)</p>
+ <p>&#9658; main.lua (It has the main structure of the CNN)</p>
 
 <p>&#9658; process.lua (It has all the functions implemented)</p>
 
