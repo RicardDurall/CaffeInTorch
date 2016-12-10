@@ -5,7 +5,7 @@
 
 <p>process.lua  It has all the functions implemented.</p>
 
-How to run the program the first time:
+<h2>How to run the program the first time:</h2>
 
 <p>th mainCaffe.lua -initializeAll (all layers will freeze their weights but the last ones which would be initialized)</p>
 
