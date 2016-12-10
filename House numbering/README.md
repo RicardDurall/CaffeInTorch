@@ -1,12 +1,15 @@
 #House numbering
 <p>This folder contains the files to run CNN using House numbering dataset.</p>
 <pre>
-mainCaffe.lua  (It has the main structure of the CNN)
-process.lua  (It has all the functions implemented)
+mainCaffe.lua  
+<small>(It has the main structure of the CNN)</small>
+process.lua  
+<small>(It has all the functions implemented)</small>
 </pre>
 <u>How to run the program the first time:</u>
 <pre>
-th mainCaffe.lua -initializeAll (all layers will freeze their weights but the last ones which would be initialized)
+th mainCaffe.lua -initializeAll 
+<small>(all layers will freeze their weights but the last ones which would be initialized)</small>
 </pre>
 <u>If we have already run the program and we have houseCaffe.t7:</u>
 <pre>
