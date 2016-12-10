@@ -10,7 +10,7 @@
 <pre>th mainCaffe.lua -initializeAll</pre>
 (all layers will freeze their weights but the last ones which would be initialized)
 
-<h4>If we have already run the program and we have houseCaffe.t7:</h4>
+<h4>If the program has already run once, then there is houseCaffe.t7 which will be load:</h4>
 <pre>th mainCaffe.lua -netwwork mainCaffe/houseCaffe.t7</pre>
 
 <p>The code posted in this site was originally from <a href="https://github.com/szagoruyko/loadcaffe">szagoruyko</a> and <a href="https://github.com/torch/demos">train-on-housenumbers</a>. Nevertheless, it has been modified accordingly to the goals.</p>
