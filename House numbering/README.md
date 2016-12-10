@@ -13,4 +13,4 @@ How to run the program the first time:
 
 <p>th mainCaffe.lua -netwwork mainCaffe/houseCaffe.t7</p>
 
-<p>The code posted in this site was originally from <a href="http://www.w3schools.com/html/">szagoruyko</a> and <a href="http://www.w3schools.com/html/">train-on-housenumbers</a>. Nevertheless, it has been modified accordingly to the goals.</p>
+<p>The code posted in this site was originally from <a href="https://github.com/szagoruyko/loadcaffe">szagoruyko</a> and <a href="https://github.com/torch/demos">train-on-housenumbers</a>. Nevertheless, it has been modified accordingly to the goals.</p>
