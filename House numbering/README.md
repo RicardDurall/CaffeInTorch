@@ -1,5 +1,5 @@
 #House numbering
-<p>This folder contains the files to run CNN using House numbering dataset.</p>
+<p>This folder contains the files to run CNN using House numbering dataset. It has been used a pre-tained  AlexNet  model from <a href="https://github.com/BVLC/caffe/tree/master/models/bvlc_alexnet">Berkeley Vision and Learning Center</a>. Fine-tunning is applied only to the fully connected layers.</p>
 
  <p>&#9658; main.lua (It has the main structure of the CNN)</p>
 
