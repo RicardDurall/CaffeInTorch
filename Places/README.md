@@ -46,7 +46,7 @@ All of them are originally from <a href="http://places.csail.mit.edu/">PLaces205
 <h4>How to run the program the first time:</h4>
 <pre>th main.lua -initializeAll</pre>
 
-<h4>If the program has already run once, then there is placesCaffe.t7 which will be load:</h4>
+<h4>If the program has already run once, then there is places25Caffe.t7 which will be load:</h4>
 <pre>th main.lua -netwwork main/places25Caffe.t7</pre>
 
 <p>The code posted in this site was originally from <a href="https://github.com/szagoruyko/loadcaffe">szagoruyko</a> and <a href="https://github.com/torch/demos">train-on-housenumbers</a>. Nevertheless, it has been modified accordingly to the goals.</p>
