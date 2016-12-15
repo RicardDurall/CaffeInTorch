@@ -1,10 +1,42 @@
 #Places25
 <p>This folder contains the files to run CNN using a modified  <a href="http://places.csail.mit.edu/">PLaces205 dataset</a>. In our case, there are 25 different classes to classify
-<ul>
-  <li>airport_terminal aqueduct bookstore bridge castle</li>
-  <li>Tea</li>
-  <li>Milk</li>
-</ul> ('','','','','','cathedral','cemetery','gas_station','harbor','highway','igloo','jail_cell','lighthouse','office_building','palace','parking_lot','residential_neighborhood','skyscraper','slum','snowfield','stadium','subway_station/platform','supermarket','swimming_pool/outdoor','windmill'), all of them originally from <a href="http://places.csail.mit.edu/">PLaces205 dataset</a> It has been used a pre-tained  AlexNet  model from <a href="https://github.com/BVLC/caffe/tree/master/models/bvlc_alexnet">Berkeley Vision and Learning Center</a>. Fine-tunning is applied after pool2 layer.</p>
+<table style="width:100%">
+  <tr>
+    <td>airport_terminal</td>
+    <td>aqueduct</td>
+    <td>bookstore</td>
+    <td>abridge</td>
+    <td>castle</td>
+  </tr>
+    <tr>
+    <td>cathedral</td>
+    <td>cemetery</td>
+    <td>gas_station</td>
+    <td>harbor</td>
+    <td>highway</td>
+  </tr>
+    <tr>
+    <td>igloo</td>
+    <td>jail_cell</td>
+    <td>lighthouse</td>
+    <td>office_building</td>
+    <td>palace</td>
+  </tr>  <tr>
+    <td>parking_lot</td>
+    <td>residential_neighborhood</td>
+    <td>skyscraper</td>
+    <td>slum</td>
+    <td>snowfield</td>
+  </tr>
+    <tr>
+    <td>stadium</td>
+    <td>subway_station</td>
+    <td>supermarket</td>
+    <td>swimming_pool</td>
+    <td>windmill</td>
+  </tr>
+</table>
+all of them originally from <a href="http://places.csail.mit.edu/">PLaces205 dataset</a> It has been used a pre-tained  AlexNet  model from <a href="https://github.com/BVLC/caffe/tree/master/models/bvlc_alexnet">Berkeley Vision and Learning Center</a>. Fine-tunning is applied after pool2 layer.</p>
 
 <p>&#9658; main.lua (It has the main structure of the CNN)</p>
 
