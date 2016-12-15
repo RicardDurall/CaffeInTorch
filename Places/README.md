@@ -1,5 +1,5 @@
 #Places25
-<p>This folder contains the files to run CNN using a modified  <a href="http://places.csail.mit.edu/">PLaces205 dataset</a>. In our case, there are 25 different classes to classify
+<p>This folder contains the files to run CNN using a modified  <a href="http://places.csail.mit.edu/">PLaces205 dataset</a>. In our case, there are 25 different classes to classify:
 <table style="width:100%">
   <tr>
     <td>airport_terminal</td>
@@ -36,7 +36,7 @@
     <td>windmill</td>
   </tr>
 </table>
-all of them originally from <a href="http://places.csail.mit.edu/">PLaces205 dataset</a> It has been used a pre-tained  AlexNet  model from <a href="https://github.com/BVLC/caffe/tree/master/models/bvlc_alexnet">Berkeley Vision and Learning Center</a>. Fine-tunning is applied after pool2 layer.</p>
+All of them are originally from <a href="http://places.csail.mit.edu/">PLaces205 dataset</a> It has been used a pre-tained  AlexNet  model from <a href="https://github.com/BVLC/caffe/tree/master/models/bvlc_alexnet">Berkeley Vision and Learning Center</a>. Fine-tunning is applied after pool2 layer.</p>
 
 <p>&#9658; main.lua (It has the main structure of the CNN)</p>
 
