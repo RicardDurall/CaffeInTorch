@@ -1,6 +1,5 @@
 require 'torch'
 require 'nn'
-require 'nnx'
 require 'optim'
 require 'image'
 require 'loadcaffe'
@@ -11,6 +10,8 @@ require 'cunn'
 local ffi = require 'ffi'
 require 'paths'
 
+
+--torch.setdefaulttensortype("torch.CudaTensor")
 
 local M={}
 
@@ -25,17 +26,36 @@ function loadnetwork()
 		print('loading previously trained network (from Caffe)')
 		-- this will load the network and print it's structure
 		--load AlexNet
-		model = loadcaffe.load('/data/durall/CNN/deploy.prototxt', '/data/durall/CNN/bvlc_alexnet.caffemodel', 'cudnn')
-		model:remove(24) -- remomve cudnn.SoftMax
-		model:add(nn.Linear(1000,25))
-		model:add(nn.LogSoftMax())
+		network = loadcaffe.load('/data/durall/CNN/deploy.prototxt', '/data/durall/CNN/bvlc_alexnet.caffemodel', 'cudnn')
+		network:remove(24) -- remomve cudnn.SoftMax
+		network:add(nn.Linear(1000,10))
+		network:add(nn.LogSoftMax())
+
 		--load VGGNet
 		--model = loadcaffe.load('/data/durall/CNN/NETWORK1/Places_CNDS/deploy.prototxt', '/data/durall/CNN/NETWORK1/Places_CNDS/8conv3fc_DSN.caffemodel')
 
 	else
-		print('reloading previously trained network from you (t7)')
-		model = torch.load(opt.network)
+		print('reloading previously trained network from your (t7)')
+		network = torch.load(opt.network)
 	end
+
+	--convert the model into cudnn
+	cudnn.convert(network,cudnn)   
+	cudnn.fastest = true
+	cudnn.benchmark = true
+	
+	-- Use a deterministic convolution implementation
+	network:apply(function(m) if m.setMode then m:setMode(1,1,1) end end)
+	print(network)
+
+	model = network:cuda()
+
+	--[[model = nn.Sequential()
+	function nn.Copy.updateGradInput() end    
+	model:add(nn.Copy('torch.FloatTensor', 'torch.CudaTensor'):cuda())
+	model:add(network)]]
+	print(model)
+
 end
 -------------------------------------------------------------------------
 -------------------------------------------------------------------------
@@ -45,32 +65,36 @@ end
 function initialization()
 
 	print('initialization')
-	--initialize weight (fc6 is layer 18)
+	
 	for i,m in pairs(model:listModules()) do
 
-		if i > 9 and (opt.initializeAll) then
-			print('initialized layer: ' .. i)
-			m:reset() --random initialization of weights and bias
+		--initialize weight (fc6 is layer 16)
+		if i > 16  then
+			if (opt.initializeAll) then
+				print('initialized layer: ' .. i)
+				m:reset() --random initialization of weights and bias
 
-			if (opt.saveWeight) and (i==17 or i==20 or i==23 or i==24) then
-				print("new weights saved on t7 file")
+				if (opt.saveWeight) and (i==17 or i==20 or i==23 or i==24) then
+					print("new weights saved on t7 file")
 			
-				--converstion to double to work without cuda library later on
-				weightsDouble = model.modules[i].weight	
-				weightsDouble = weightsDouble:view(weightsDouble:nElement())		
-				weightsDouble = nn.utils.recursiveType(weightsDouble, 'torch.DoubleTensor')				
-				local filename = paths.concat(opt.save, i .. "weight.t7")
-				torch.save(filename, weightsDouble)
-				collectgarbage()
+					--converstion to double to work without cuda library later on
+					weightsDouble = model.modules[i].weight	
+					weightsDouble = weightsDouble:view(weightsDouble:nElement())		
+					weightsDouble = nn.utils.recursiveType(weightsDouble, 'torch.DoubleTensor')				
+					local filename = paths.concat(opt.save, i .. "weight.t7")
+					torch.save(filename, weightsDouble)
 
+				end
 			end
 
 		else
+			print("frozen layer: " .. i)
 			--avoid to backprop through these layers
 			m.updateGradInput = function(self,i,o) end -- for the gradInput
 			m.accGradParameters = function(self,i,o) end -- for freezing the parameters	
 		end
 	end
+	collectgarbage()
 end
 -------------------------------------------------------------------------
 -------------------------------------------------------------------------
@@ -79,23 +103,24 @@ end
 -------------------------------------------------------------------------
 function loadData(option,batchSize,num)
 	--print('loading Place data to Torch')
-
+	
 	--Create the table of data according to
 	data1 = {}
 	label1 = {}
 
-	if option == 1 and num == 0 then
+
+	if option == 1 then
 		--train dataset
-		cacheTrainFile = '/data/durall/CNN/dataset/places25DataTrain.t7'
+		cacheTrainFile = '/data/durall/CNN/dataset/places10DataTrain.t7'
 		f = torch.load(cacheTrainFile,'ascii')
-		
-	elseif num == 0 then
+			
+	else
 		--test dataset
-		cacheTrainFile = '/data/durall/CNN/dataset/places25DataTest.t7'
+		cacheTrainFile = '/data/durall/CNN/dataset/places10DataTest.t7'
 		f = torch.load(cacheTrainFile,'ascii')
-		
+
 	end
-	
+
 	startWith = 1+(num*batchSize)
 	endWith = batchSize+(num*batchSize)
 
@@ -113,6 +138,7 @@ function loadData(option,batchSize,num)
 		end
 	end
 
+
 	for i= startWith, endWith do
 		
 		if option == 1 then
@@ -122,6 +148,7 @@ function loadData(option,batchSize,num)
 			pathImage = ffi.string(f.imagePath[randValTest[i]]:data())
 			table.insert(label1,  f.imageClass[randValTest[i]])
 		end
+
 		local img = image.load(pathImage,3)
 		img = image.scale(img, 227, 227, bilinear)
 		table.insert(data1, img)		
@@ -140,16 +167,17 @@ function loadData(option,batchSize,num)
 	if option == 1 then
 		trainData = {
 			data = data,
-			labels = label 
+			labels = label:cuda()
 			}
 		--print(trainData)
 	else
 		testData = {
 			data = data,
-			labels = label 
+			labels = label:cuda()
 			}
 		--print(testData)
 	end
+	collectgarbage()
 
 end
 -------------------------------------------------------------------------
@@ -216,6 +244,7 @@ function preprocess(option)
 		testData.data[{ {},3,{},{} }]:add(-mean_v)
 		testData.data[{ {},3,{},{} }]:div(-std_v)
 	end
+	collectgarbage()
 
 end
 -------------------------------------------------------------------------
@@ -287,7 +316,7 @@ function dataAugmentation()
 		newLabel = torch.Tensor(1):fill(trainData.labels[i])
 		trainData.labels = torch.cat(trainData.labels,newLabel,1)
 	end
-
+	collectgarbage()
 end
 -------------------------------------------------------------------------
 -------------------------------------------------------------------------
@@ -295,10 +324,21 @@ end
 -------------------------------------------------------------------------
 -------------------------------------------------------------------------
 function train()
+
+	--used in activations function
+	activation1 = {}
+	activation2 = {}
+	activation3 = {}
+	activation4 = {}
+	fisrtTime = true
+
+
 	-- epoch tracker
 	epoch = epoch or 1
 
-	randValTrain = torch.randperm(280267)
+	--randValTrain = torch.randperm(280267)
+	randValTrain = torch.randperm(135900)
+
 
 	local inputs = {}
 	local targets = {}
@@ -315,17 +355,15 @@ function train()
 
 		-- number 1 is for training
 		loadData(1,opt.batchSize,g)
-		--preprocess(1)
-	--print(trainData.data:size(1))
-		for t = 1,trainData.data:size(1) do
-	
-			local input = trainData.data[t]:cuda()
-			local target = trainData.labels[t]
-			table.insert(inputs, input)
-			table.insert(targets, target)
-		end
+		preprocess(1)
+		trainData.data = trainData.data:cuda()
+
 		-- create closure to evaluate f(X) and df/dX
 		local feval = function(x)
+
+			-- just in case:
+			collectgarbage()
+
 			-- get new parameters
 			if x ~= parameters then
 				parameters:copy(x)
@@ -337,23 +375,27 @@ function train()
 			local f = 0
 			-- evaluate function for complete mini batch
 
-			for i = 1,#inputs do
-
+			for i = 1,trainData.data:size(1) do
+			--print(i)
 				-- estimate f	
-				local output = model:forward(inputs[i])
-				local err = criterion:forward(output, targets[i])
+				local output = model:forward(trainData.data[i])
+				local err = criterion:forward(output, trainData.labels[i])
 				f = f + err
 
 				-- estimate df/dW
-				local df_do = criterion:backward(output, targets[i])
-				model:backward(inputs[i], df_do)
+				local df_do = criterion:backward(output, trainData.labels[i])
+				model:backward(trainData.data[i], df_do)
 				output = output:double()
+
 				-- update confusion
-				confusion:add(output, targets[i])
+				confusion:add(output, trainData.labels[i])
+
+				--activations(trainData.labels[i],t,0)
+
 			end
 			-- normalize gradients and f(X)
-			gradParameters:div(#inputs)
-			f = f/#inputs
+			gradParameters:div(trainData.data:size(1))
+			f = f/trainData.data:size(1)
 
 			-- return f and df/dX
 			return f,gradParameters
@@ -379,16 +421,6 @@ function train()
 		else
 			error('unknown optimization method')
 		end
-
-		--set values of table inputs to 0
-		for k in pairs (inputs) do
-    			inputs [k] = nil
-		end
-
-		--set values of table inputs to 0
-		for k in pairs (targets) do
-    			targets [k] = nil
-		end
 	end
 
 	-- print confusion matrix
@@ -397,13 +429,16 @@ function train()
 	confusion:zero()
 
 	-- save/log current net
-	local filename = paths.concat(opt.save, 'Places25Caffe.t7')
+	local filename = paths.concat(opt.save, 'Places10Caffe.t7')	
 	os.execute('mkdir -p ' .. sys.dirname(filename))
 	print('saving network to '..filename)
 	torch.save(filename, model)
 
+
+
 	-- next epoch
 	epoch = epoch + 1
+	collectgarbage()
 end
 -------------------------------------------------------------------------
 -------------------------------------------------------------------------
@@ -426,7 +461,7 @@ function test()
 		parameters:copy(average)
 	end
 
-	randValTest = torch.randperm(31141)
+	randValTest = torch.randperm(15100)
 
 	local loopValue = torch.floor(randValTest:size(1)/opt.batchSize)
 
@@ -436,18 +471,19 @@ function test()
 
 		-- number 1 is for training
 		loadData(2,opt.batchSize,g)
-		--preprocess(2)
+		preprocess(2)
+		testData.data = testData.data:cuda()
 
 		-- test over given dataset
 		for t = 1, testData.data:size(1) do
 
 			-- get new sample
-			local input = testData.data[t]:cuda()
+			local input = testData.data[t]
 			local target = testData.labels[t]
 
 			-- test sample
 			local pred = model:forward(input)
-			--activations(target,t)
+			--activations(target,t,1)
 
 			-- Get the top 5 class indexes and probabilities
 			--local N=5
@@ -459,7 +495,7 @@ function test()
 			--print('')
 
 			confusion:add(pred, target)
-		
+			collectgarbage()
 		end
 	end
 
@@ -474,6 +510,7 @@ function test()
 		-- restore parameters
 		parameters:copy(cachedparams)
 	end
+	collectgarbage()
 
 end
 -------------------------------------------------------------------------
@@ -501,7 +538,7 @@ end
 --ACTIVTIONS VALUES ARE SAVED IN A FILE----------------------------------
 -------------------------------------------------------------------------
 -------------------------------------------------------------------------
-function activations(labelTarget,t)
+function activations(labelTarget,t,option)
 
 	--num stnads for the amount of pictures
 	num=1000
@@ -509,18 +546,24 @@ function activations(labelTarget,t)
 	if t<=num then
 		--loop for save the 4 activation layers
 		for i=1, 4 do
-			--activations from layer 12 
-			if i==1 then
-				lay = 12
-			--activations from layer 15
-			elseif i==2 then
-				lay = 15
-			--activations from layer 19
-			elseif i==3 then
-				lay = 19
-			--activations from layer 23
+			--activation from training or testing (if it's from training we want only one activation layer)
+			if option == 0 then 
+				i=5
+				lay=16
 			else
-				lay = 23
+				--activations from layer 12 
+				if i==1 then
+					lay = 12
+				--activations from layer 15
+				elseif i==2 then
+					lay = 15
+				--activations from layer 19
+				elseif i==3 then
+					lay = 19
+				--activations from layer 23
+				else
+					lay = 23
+				end
 			end
 
 			newActivation = {}
@@ -552,7 +595,7 @@ function activations(labelTarget,t)
 				else
 					activation4.data = newActivation:clone()
 					activation4.labels = torch.Tensor(1):fill(labelTarget)
-					fisrtTime = false
+					fisrtTime = false					
 				end
 
 				
@@ -600,7 +643,7 @@ function activations(labelTarget,t)
 		end
 
 	end
-
+	collectgarbage()
 	--print(activation1)
 	--print(activation2)
 	--print(activation3)
