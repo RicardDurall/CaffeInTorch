@@ -20,7 +20,7 @@ All of them are originally from <a href="http://places.csail.mit.edu/">PLaces205
 
 <img src="https://github.com/RicardDurall/CaffeInTorch/blob/master/Places/Imgaes/network.PNG" alt="CNN" style="width:304px;height:228px;">
 
-<h4>Accuracy results of the CNN:</h4>
+<h2>Accuracy results of the CNN:</h2>
 
 <img src="https://github.com/RicardDurall/CaffeInTorch/blob/master/Places/Imgaes/graph.PNG" alt="CNN" style="width:304px;height:228px;">
 
