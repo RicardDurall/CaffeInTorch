@@ -16,9 +16,13 @@
     <td>skyscraper</td>
   </tr>
 </table>
-All of them are originally from <a href="http://places.csail.mit.edu/">PLaces205 dataset</a> It has been used a pre-tained  AlexNet  model from <a href="https://github.com/BVLC/caffe/tree/master/models/bvlc_alexnet">Berkeley Vision and Learning Center</a>. Fine-tunning is applied after pool2 layer.</p>
+All of them are originally from <a href="http://places.csail.mit.edu/">PLaces205 dataset</a> It has been used a pre-tained  AlexNet  model from <a href="https://github.com/BVLC/caffe/tree/master/models/bvlc_alexnet">Berkeley Vision and Learning Center</a>. Fine-tunning is applied after block 4.</p>
 
 <img src="https://github.com/RicardDurall/CaffeInTorch/blob/master/Places/network.PNG" alt="CNN" style="width:304px;height:228px;">
+
+<h4>Results of the CNN:</h4>
+
+<img src="https://github.com/RicardDurall/CaffeInTorch/blob/master/Places/graph.PNG" alt="CNN" style="width:304px;height:228px;">
 
 
 <p>&#9658; main.lua (It has the main structure of the CNN)</p>
