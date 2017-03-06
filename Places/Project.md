@@ -29,11 +29,11 @@ All of them are originally from <a href="http://places.csail.mit.edu/">PLaces205
 
 <table style="width:100%">
   <tr>
-    <td><img src="https://github.com/RicardDurall/CaffeInTorch/blob/master/Places/Imgaes/activation12.PNG" style="width:75px;height:76px;"></td>
-    <td><img src="https://github.com/RicardDurall/CaffeInTorch/blob/master/Places/Imgaes/activation15.PNG" style="width:75px;height:76px;"></td>
+    <td><img src="https://github.com/RicardDurall/CaffeInTorch/blob/master/Places/Imgaes/euclidean12.PNG" style="width:75px;height:76px;"></td>
+    <td><img src="https://github.com/RicardDurall/CaffeInTorch/blob/master/Places/Imgaes/euclidean15.PNG" style="width:75px;height:76px;"></td>
   </tr>
     <tr>
-    <td><img src="https://github.com/RicardDurall/CaffeInTorch/blob/master/Places/Imgaes/activation19.PNG" style="width:75px;height:76px;"></td>
-    <td><img src="https://github.com/RicardDurall/CaffeInTorch/blob/master/Places/Imgaes/activation23.PNG" style="width:75px;height:76px;"></td>
+    <td><img src="https://github.com/RicardDurall/CaffeInTorch/blob/master/Places/Imgaes/euclidean19.PNG" style="width:75px;height:76px;"></td>
+    <td><img src="https://github.com/RicardDurall/CaffeInTorch/blob/master/Places/Imgaes/euclidean23.PNG" style="width:75px;height:76px;"></td>
   </tr>
 </table>
