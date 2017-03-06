@@ -1,5 +1,7 @@
 #Places10
-<p>This folder contains the files to run CNN using a modified  <a href="http://places.csail.mit.edu/">PLaces205 dataset</a>. In our case, there are 10 different classes to classify:
+<p>This folder contains the files to run CNN using a modified  <a href="http://places.csail.mit.edu/">PLaces205 dataset</a> and some <a href="https://github.com/RicardDurall/CaffeInTorch/blob/master/Places/project.md">results</a> extacted them . In our case, there are 10 different classes to classify:
+
+
 <table style="width:100%">
   <tr>
     <td>airport_terminal</td>
