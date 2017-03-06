@@ -20,12 +20,12 @@ All of them are originally from <a href="http://places.csail.mit.edu/">PLaces205
 
 <img src="https://github.com/RicardDurall/CaffeInTorch/blob/master/Places/Imgaes/network.PNG" alt="CNN" style="width:304px;height:228px;">
 
-<h2>Accuracy results of the CNN:</h2>
+<h4>Accuracy results of the CNN:</h4>
 
 <img src="https://github.com/RicardDurall/CaffeInTorch/blob/master/Places/Imgaes/graph.PNG" alt="CNN" style="width:304px;height:228px;">
 
-<h4>Euclidean distances:</h4>
-<p> In this subsetion, we have computed the euclidean distance between the activations from 10000 trianing images and from 1000 testing images. We have repeated the experiment for several different activation layers, such as layer 12 (just after block 4)</p>
+<h3>Euclidean distances:</h3>
+<p> In this subsetion, we have computed the euclidean distance between the activations from 10000 trianing images and from 1000 testing images. We have repeated the experiment for several different activation layers, such as layer 12, 15 and so.</p>
 
 <table style="width:100%">
   <tr>
