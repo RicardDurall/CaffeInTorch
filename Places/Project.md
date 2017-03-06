@@ -1,5 +1,5 @@
 #Project
-<p>This folder contains sevreal experiments performed over the CNN. In our case, as we mentioned beofre, there are 10 different classes to classify:
+<p>This folder contains sevreal experiments performed over the CNN. In our case, as we mentioned beofre, we work withe 10 different classes:
 <table style="width:100%">
   <tr>
     <td>airport_terminal</td>
