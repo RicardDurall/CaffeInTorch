@@ -20,10 +20,6 @@ All of them are originally from <a href="http://places.csail.mit.edu/">PLaces205
 
 <img src="https://github.com/RicardDurall/CaffeInTorch/blob/master/Places/network.PNG" alt="CNN" style="width:304px;height:228px;">
 
-<h4>Results of the CNN:</h4>
-
-<img src="https://github.com/RicardDurall/CaffeInTorch/blob/master/Places/graph.PNG" alt="CNN" style="width:304px;height:228px;">
-
 <h4>Files:</h4>
 
 <p>&#9658; main.lua (It has the main structure of the CNN)</p>
