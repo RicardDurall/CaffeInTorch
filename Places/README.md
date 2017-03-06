@@ -1,4 +1,4 @@
-#Places25
+#Places10
 <p>This folder contains the files to run CNN using a modified  <a href="http://places.csail.mit.edu/">PLaces205 dataset</a>. In our case, there are 10 different classes to classify:
 <table style="width:100%">
   <tr>
