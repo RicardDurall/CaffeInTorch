@@ -1,5 +1,5 @@
 #Project
-<p>This folder contains sevreal experiments performed over the CNN. In our case, as we mentioned beofre, we work withe 10 different classes:
+<p>This folder contains several experiments performed over the CNN. In our case, as we mentioned beofre, we work withe 10 different classes:
 <table style="width:100%">
   <tr>
     <td>airport_terminal</td>
