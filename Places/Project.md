@@ -26,7 +26,7 @@ All of them are originally from <a href="http://places.csail.mit.edu/">PLaces205
 
 <p> Final Accuracy aprox. 76%
 
-Note: If  the network keeps on training the accuracy of training is going to increase, however the testing will remain at the same value aprox. and we will suffer from overfitting.
+<i>Note: If  the network keeps on training the accuracy of training is going to increase, however the testing will remain at the same value aprox. and we will suffer from overfitting.</i>
 </p>
 
 <h4>Euclidean distances</h4>
@@ -54,4 +54,4 @@ Note: If  the network keeps on training the accuracy of training is going to inc
 <p>Result: In this subsection we can clearly see that there is a high correlation between the different activation layers when we apply euclidean distance.</p> 
 
 <h4>Activation </h4>
-<img src="https://github.com/RicardDurall/CaffeInTorch/blob/master/Places/Imgaes/scheme.PNG" alt="CNN" style="width:304px;height:228px;">
+<img src="https://github.com/RicardDurall/CaffeInTorch/blob/master/Places/Imgaes/scheme.PNG" alt="CNN" style="width:600px;height:250px;">
