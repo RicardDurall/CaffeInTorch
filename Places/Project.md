@@ -49,3 +49,4 @@ All of them are originally from <a href="http://places.csail.mit.edu/">PLaces205
 <p>Result: In this subsection we can clearly see that there is a high correlation between the different activation layers when we apply euclidean distance.</p> 
 
 <h3>Activation </h3>
+<img src="https://github.com/RicardDurall/CaffeInTorch/blob/master/Places/Imgaes/scheme.PNG" alt="CNN" style="width:304px;height:228px;">
