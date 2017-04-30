@@ -24,7 +24,12 @@ All of them are originally from <a href="http://places.csail.mit.edu/">PLaces205
 
 <img src="https://github.com/RicardDurall/CaffeInTorch/blob/master/Places/Imgaes/graph.PNG" alt="CNN" style="width:304px;height:228px;">
 
-<h3>Euclidean distances</h3>
+<p> Final Accuracy aprox. 76%
+
+Note: If  the network keeps on training the accuracy of training is going to increase, however the testing will remain at the same value aprox. and we will suffer from overfitting.
+</p>
+
+<h4>Euclidean distances</h4>
 <p> In this subsetion, we have computed the euclidean distance between the activations from 10000 trianing images and from 1000 testing images. We have repeated the experiment for several different activation layers, such as layer 12, 15 and so.</p>
 
 <table style="width:100%">
@@ -48,5 +53,5 @@ All of them are originally from <a href="http://places.csail.mit.edu/">PLaces205
 
 <p>Result: In this subsection we can clearly see that there is a high correlation between the different activation layers when we apply euclidean distance.</p> 
 
-<h3>Activation </h3>
+<h4>Activation </h4>
 <img src="https://github.com/RicardDurall/CaffeInTorch/blob/master/Places/Imgaes/scheme.PNG" alt="CNN" style="width:304px;height:228px;">
