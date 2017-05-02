@@ -99,7 +99,7 @@ while true do
 	print("---------------------------------------------------------------")
 
 	-- training function
-	--process.train()
+	process.train()
 	-- test function
 	process.test()
 	if control >= lastValue then
