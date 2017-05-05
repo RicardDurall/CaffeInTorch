@@ -25,6 +25,7 @@ All of them are originally from <a href="http://places.csail.mit.edu/">PLaces205
 <h4>Files:</h4>
 
 <p>&#9658; mainCaffe.lua (It has the main structure of the CNN)</p>
+aaa
 
 <p>&#9658; process.lua (It has all the functions implemented)</p>
 
