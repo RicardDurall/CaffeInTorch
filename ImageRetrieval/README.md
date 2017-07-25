@@ -5,7 +5,16 @@ outperforming the state-of-the-art results. In order to tackle this task, extrac
 
 <img src="https://github.com/RicardDurall/CaffeInTorch/blob/master/ImageRetrieval/Images/net.JPG" alt="CaffeNetCNN" style="width:304px;height:228px;">
 
+<h4>Files:</h4>
+
+<p>&#9658; mainCaffe.lua (It has the main structure of the CNN)</p>
+
+<p>&#9658; process.lua (It has all the functions implemented)</p>
+
+
 <h4>How to run the program:</h4>
 <pre>th mainCaffe.lua </pre>
 
-<p>The code posted in this site was originally from <a href="https://github.com/szagoruyko/loadcaffe">szagoruyko</a> and <a href="https://github.com/torch/demos">train-on-housenumbers</a>. Nevertheless, it has been modified accordingly to the goals.</p>
+<p>outuput</p>
+
+<p>The code posted in this site was originally from <a href="https://github.com/szagoruyko/loadcaffe">szagoruyko</a>. Nevertheless, it has been modified accordingly to the goals.</p>
