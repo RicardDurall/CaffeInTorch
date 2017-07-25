@@ -25,9 +25,8 @@ function loadnetwork()
 	if opt.network == '' then
 		print('loading previously trained network (from Caffe)')
 		--load AlexNet
-		--imagenet pretrained
 		--network = loadcaffe.load('/data/durall/CNN/deploy_imageNet.prototxt', '/data/durall/CNN/bvlc_reference_caffenet.caffemodel', 'cudnn')
-		--no imagenet 
+		--load CaffeNet
 		network = loadcaffe.load('/data/durall/CNN/deploy.prototxt', '/data/durall/CNN/bvlc_alexnet.caffemodel', 'cudnn')
 		network:remove(24) -- remomve cudnn.SoftMax
 		network:add(nn.Linear(1000,10))
@@ -67,18 +66,6 @@ function initialization()
 			if (opt.initializeAll) then
 				print('initialized layer: ' .. i)
 				m:reset() --random initialization of weights and bias
-
-				if (opt.saveWeight) and (i==17 or i==20 or i==23 or i==24) then
-					print("new weights saved on t7 file")
-			
-					--converstion to double to work without cuda library later on
-					weightsDouble = model.modules[i].weight	
-					weightsDouble = weightsDouble:view(weightsDouble:nElement())		
-					weightsDouble = nn.utils.recursiveType(weightsDouble, 'torch.DoubleTensor')				
-				local filename = paths.concat(opt.save, i .. "weight.t7")
-					torch.save(filename, weightsDouble)
-
-				end
 			end
 
 		else
@@ -105,12 +92,12 @@ function loadData(option,batchSize,num)
 
 	if option == 1 then
 		--train dataset
-		cacheTrainFile = '/data/durall/CNN/dataset/places10DataTrain.t7'
+		cacheTrainFile = '../places10DataTrain.t7'
 		f = torch.load(cacheTrainFile,'ascii')
 			
 	else
 		--test dataset
-		cacheTrainFile = '/data/durall/CNN/dataset/places10DataTest.t7'
+		cacheTrainFile = '../places10DataTest.t7'
 		f = torch.load(cacheTrainFile,'ascii')
 
 	end
@@ -324,25 +311,12 @@ function train()
 	activation2 = {}
 	activation3 = {}
 	activation4 = {}
-	activationSum = {}
-	res1 = {}
-	res2 = {}
-	res3 = {}
-	res4 = {}
-	res5 = {}
-	res6 = {}
-	res7 = {}
-	res8 = {}
-	res9 = {}
-	res10 = {}
 	fisrtTime = true
 
 
 	-- epoch tracker
 	epoch = epoch or 1
 
-	--25 randValTrain = torch.randperm(280267)
-	--10 1.randValTrain = torch.randperm(135900)
 	randValTrain = torch.randperm(112798)
 
 	local inputs = {}
@@ -394,7 +368,6 @@ function train()
 				-- update confusion
 				confusion:add(output, trainData.labels[i])
 				activations(trainData.labels[i],t)
-				--summation(trainData.labels[i],false,0)
 				
 
 			end
@@ -428,9 +401,6 @@ function train()
 		end
 	end
 
-	--save values sumation
-	--summation(1,true,0)
-
 	-- print confusion matrix
 	print(confusion)
 	trainLogger:add{['% mean class accuracy (train set)'] = confusion.totalValid * 100}
@@ -461,28 +431,15 @@ function test()
 	activation2 = {}
 	activation3 = {}
 	activation4 = {}
-	activationSum = {}
-	res1 = {}
-	res2 = {}
-	res3 = {}
-	res4 = {}
-	res5 = {}
-	res6 = {}
-	res7 = {}
-	res8 = {}
-	res9 = {}
-	res10 = {}
 	fisrtTime = true
 
 
-	-- averaged param use?
+	-- averaged param use
 	if average then
 		cachedparams = parameters:clone()
 		parameters:copy(average)
 	end
 
-	--25 randValTest = torch.randperm(31141)
-	--10 1.randValTest = torch.randperm(15100)
 	randValTest = torch.randperm(12534)
 
 	local loopValue = torch.floor(randValTest:size(1)/opt.batchSize)
@@ -688,119 +645,6 @@ function activations(labelTarget,t)
 
 end
 
-function summation(labelTarget,flag,test)
-	if(flag==false) then 
-		lay = 23
-		newActivationSum = model:get(lay).output
-		newActivationSum = newActivationSum:view(newActivationSum:nElement())
-		--print(labelTarget)
-
-		if fisrtTime then
-			res1.data = newActivationSum:clone()*0
-			res1.number = 0
-			res2.data = newActivationSum:clone()*0
-			res2.number = 0
-			res3.data = newActivationSum:clone()*0
-			res3.number = 0
-			res4.data = newActivationSum:clone()*0
-			res4.number = 0
-			res5.data = newActivationSum:clone()*0
-			res5.number = 0
-			res6.data = newActivationSum:clone()*0
-			res6.number = 0
-			res7.data = newActivationSum:clone()*0
-			res7.number = 0
-			res8.data = newActivationSum:clone()*0
-			res8.number = 0
-			res9.data = newActivationSum:clone()*0
-			res9.number = 0
-			res10.data = newActivationSum:clone()*0
-			res10.number = 0
-			fisrtTime = false	
-		end
-
-		if(labelTarget ==1) then
-			res1.data = res1.data + newActivationSum
-			res1.number = res1.number +1
-		elseif (labelTarget ==2) then
-			res2.data = res2.data + newActivationSum
-			res2.number = res2.number +1
-		elseif (labelTarget ==3) then
-			res3.data = res3.data + newActivationSum
-			res3.number = res3.number +1
-		elseif (labelTarget ==4) then
-			res4.data = res4.data + newActivationSum
-			res4.number = res4.number +1
-		elseif (labelTarget ==5) then
-			res5.data = res5.data + newActivationSum
-			res5.number = res5.number +1
-		elseif (labelTarget ==6) then
-			res6.data = res6.data + newActivationSum
-			res6.number = res6.number +1
-		elseif (labelTarget ==7) then
-			res7.data = res7.data + newActivationSum
-			res7.number = res7.number +1
-		elseif (labelTarget ==8) then
-			res8.data = res8.data + newActivationSum
-			res8.number = res8.number +1
-		elseif (labelTarget ==9) then
-			res9.data = res9.data + newActivationSum
-			res9.number = res9.number +1
-		elseif (labelTarget ==10) then
-			res10.data = res10.data + newActivationSum
-			res10.number = res10.number +1
-		end
-
-	elseif(flag==true) then
-		res1.data = res1.data / res1.number
-		actiLogger1 = optim.Logger(paths.concat(opt.save, test .. 'activation1.log'))
-
-		res2.data = res2.data / res2.number
-		actiLogger2 = optim.Logger(paths.concat(opt.save, test .. 'activation2.log'))
-
-		res3.data = res3.data / res3.number
-		actiLogger3 = optim.Logger(paths.concat(opt.save, test .. 'activation3.log'))
-
-		res4.data = res4.data / res4.number
-		actiLogger4 = optim.Logger(paths.concat(opt.save, test .. 'activation4.log'))
-
-		res5.data = res5.data / res5.number
-		actiLogger5 = optim.Logger(paths.concat(opt.save, test .. 'activation5.log'))
-
-		res6.data = res6.data / res6.number
-		actiLogger6 = optim.Logger(paths.concat(opt.save, test .. 'activation6.log'))
-
-		res7.data = res7.data / res7.number
-		actiLogger7 = optim.Logger(paths.concat(opt.save, test .. 'activation7.log'))
-
-		res8.data = res8.data / res8.number
-		actiLogger8 = optim.Logger(paths.concat(opt.save, test .. 'activation8.log'))
-
-		res9.data = res9.data / res9.number
-		actiLogger9 = optim.Logger(paths.concat(opt.save, test .. 'activation9.log'))
-
-		res10.data = res10.data / res10.number
-		actiLogger10 = optim.Logger(paths.concat(opt.save, test .. 'activation10.log'))
-
-
-		for i =1, res1.data:size(1) do 
-			actiLogger1:add{['% mean class accuracy (test set)'] = res1.data[i]}
-			actiLogger2:add{['% mean class accuracy (test set)'] = res2.data[i]}
-			actiLogger3:add{['% mean class accuracy (test set)'] = res3.data[i]}
-			actiLogger4:add{['% mean class accuracy (test set)'] = res4.data[i]}
-			actiLogger5:add{['% mean class accuracy (test set)'] = res5.data[i]}
-			actiLogger6:add{['% mean class accuracy (test set)'] = res6.data[i]}
-			actiLogger7:add{['% mean class accuracy (test set)'] = res7.data[i]}
-			actiLogger8:add{['% mean class accuracy (test set)'] = res8.data[i]}
-			actiLogger9:add{['% mean class accuracy (test set)'] = res9.data[i]}
-			actiLogger10:add{['% mean class accuracy (test set)'] = res10.data[i]}
-		end
-			
-	end
-
-end
-
-M.summation = summation
 M.loadnetwork = loadnetwork
 M.initialization = initialization
 M.loadData = loadData
