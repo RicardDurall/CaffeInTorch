@@ -1,5 +1,6 @@
 <h4>Places10</h4>
-<p>This folder contains the files to run CNN using a modified  <a href="http://places.csail.mit.edu/">PLaces205 dataset</a> and some <a href="https://github.com/RicardDurall/CaffeInTorch/blob/master/Places/Project.md">results</a> extacted them . In our case, there are 10 different classes to classify:
+<p>This folder contains the files to run CNN using a modified  <a href="http://places.csail.mit.edu/">PLaces205 dataset</a> and the <a href="https://github.com/RicardDurall/CaffeInTorch/blob/master/Places/Project.md">results</a> extracted from them,</p>
+<p>In our case, there are 10 different classes to classify:</p>
 
 
 <table style="width:100%">
