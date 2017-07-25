@@ -62,7 +62,7 @@ function initialization()
 	for i,m in pairs(model:listModules()) do
 
 		--initialize weight (fc6 is layer 16) 12
-		if i > 30  then
+		if i > 16 then
 			if (opt.initializeAll) then
 				print('initialized layer: ' .. i)
 				m:reset() --random initialization of weights and bias
