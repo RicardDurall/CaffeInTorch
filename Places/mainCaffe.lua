@@ -28,7 +28,6 @@ cmd:option('-t0', 1, 'start averaging at t0 (ASGD only), in nb of epochs')
 cmd:option('-maxIter', 2, 'maximum nb of iterations for CG and LBFGS')
 cmd:option('-threads', 2, 'nb of threads to use')
 cmd:option('-initializeAll', false, 'initialize last layers')
-cmd:option('-saveWeight', false, 'save the initialized weights')
 cmd:option('-augmentation', false, 'load augmentation data')
 
 control = 0
@@ -72,7 +71,6 @@ parameters,gradParameters = model:getParameters()
 ----------------------------------------------------------------------
 -- loss function: negative log-likelihood
 --
-
 criterion = nn.ClassNLLCriterion():cuda()
 
 ----------------------------------------------------------------------
@@ -116,14 +114,9 @@ while true do
 		end
 		
 	end
-	--print(flag)
 
 	print("---------------------------------------------------------------")
 	print("---------------------------------------------------------------")
-
-
-	--print(model.modules[1].weight[33][2][1][7])
-	--print(model.modules[17].weight[33][2])
 
 end
 
