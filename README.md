@@ -3,7 +3,7 @@
 <p> This repository contains two folders: </p>
 <ul>
   <li>ImageRetrieval - Usage of a CNN for image retrieval.</li>
-  <li>Placffffes - Training a CNN for classification.</li>
+  <li>Places - Training a CNN for classification.</li>
 </ul>
 
 
